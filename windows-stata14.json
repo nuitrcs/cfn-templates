@@ -1,0 +1,38 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+
+  "Description": "A single windows instance with Stata/MP 14 installed and a VPN connection to RDSS.",
+
+  "Parameters": {
+    "InstanceTypeParameter": {
+      "Type": "String",
+      "Default": "t2.micro",
+      "AllowedValues": ["t2.micro", "r4.xlarge", "r4.2xlarge"],
+      "Description": "Enter t2.micro, r4.xlarge (30.5GB RAM), or r4.2xlarge (61GB RAM). Default is t2.micro."
+    }
+  },
+
+  "Resources": {
+    "Ec2Instance": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "ImageId": "ami-31cf9554",
+        "InstanceInitiatedShutdownBehavior": "terminate",
+        "InstanceType": { "Ref": "InstanceTypeParameter" },
+        "Monitoring": "true",
+        "SecurityGroups": ["All-NU-Inbound"],
+        "Tags": [
+          { "Key": "Project", "Value": "RCS Cloud Software" },
+          { "Key": "Application", "Value": "Stata/MP 14" }
+        ]
+      }
+    }
+  },
+  
+  "Outputs": {
+    "InstanceDnsName": {
+      "Value": { "Fn::GetAtt" : [ "Ec2Instance", "PublicDnsName" ] }
+    }
+  }
+
+}
