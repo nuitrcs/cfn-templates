@@ -19,6 +19,7 @@ Resources:
     Type: AWS::EC2::Instance
     Properties:
       ImageId: ami-31cf9554
+	  IamInstanceProfile: AIPAJ66I7TYTJ5PC24CLW
       InstanceInitiatedShutdownBehavior: terminate
       InstanceType:
         Ref: InstanceTypeParameter
