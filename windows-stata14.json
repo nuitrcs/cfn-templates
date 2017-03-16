@@ -17,6 +17,7 @@
       "Type": "AWS::EC2::Instance",
       "Properties": {
         "ImageId": "ami-31cf9554",
+        "IamInstanceProfile": "Service-Catalog-User-Instance",
         "InstanceInitiatedShutdownBehavior": "terminate",
         "InstanceType": { "Ref": "InstanceTypeParameter" },
         "Monitoring": "true",

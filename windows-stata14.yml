@@ -30,6 +30,7 @@ Resources:
     Type: AWS::EC2::Instance
     Properties:
       ImageId: ami-0b587c6e
+      IamInstanceProfile: Service-Catalog-User-Instance
       InstanceInitiatedShutdownBehavior: terminate
       InstanceType:
         Ref: InstanceTypeParameter
