@@ -15,21 +15,61 @@ Parameters:
     Description: Enter t2.micro, r4.xlarge (30.5GB RAM), or r4.2xlarge (61GB RAM). Default is t2.micro.
 
 Resources:
+  Volume1:
+    Type: AWS::EC2::Volume
+    Properties:
+      AvailabilityZone: !GetAtt Ec2Instance.AvailabilityZone
+      Size: 40
+      Tags:
+        - Key: Project
+          Value: RCS Cloud Software
+        - Key: Application
+          Value: Stata/MP 14
+
   Ec2Instance:
     Type: AWS::EC2::Instance
     Properties:
-      ImageId: ami-31cf9554
+      ImageId: ami-0b587c6e
       InstanceInitiatedShutdownBehavior: terminate
       InstanceType:
         Ref: InstanceTypeParameter
       Monitoring: true
       SecurityGroups: [All-NU-Inbound]
       Tags:
-        -
-          Key: Project
+        - Key: Project
           Value: RCS Cloud Software
-          Key: Application
+        - Key: Application
           Value: Stata/MP 14
+      UserData:
+        Fn::Base64: !Sub |
+          <script>
+          cfn-init.exe -v --stack ${AWS::StackName} -r Ec2Instance --region ${AWS::Region}
+          </script>
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          default:
+            - createScripts
+            - runScripts
+        createScripts:
+          files:
+            "C:\\Windows\\Temp\\MountDrive.ps1":
+              content: !Sub |
+                $diskNumber = (Get-Disk | ? {($_.OperationalStatus -eq "Offline") -and ($_."PartitionStyle" -eq "RAW") }).Number
+                Initialize-Disk -Number $diskNumber -PartitionStyle "MBR"
+                $part = New-Partition -DiskNumber $diskNumber -UseMaximumSize -IsActive -AssignDriveLetter
+                Format-Volume -DriveLetter $part.DriveLetter -Confirm:$FALSE
+        runScripts:
+          commands:
+            runMountDrive:
+              command: "powershell.exe -Command C:\\Windows\\Temp\\MountDrive.ps1"
+
+  Ec2InstanceVolumeAttachment:
+    Type: AWS::EC2::VolumeAttachment
+    Properties:
+      Device: xvdf
+      VolumeId: !Ref Volume1
+      InstanceId: !Ref Ec2Instance
 
 Outputs:
   InstanceDnsName:
